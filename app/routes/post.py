@@ -11,7 +11,7 @@ router = APIRouter(
 
 @router.get("/", response_model= List[schemas.PostsData], status_code = status.HTTP_200_OK)
 def get_all_post(user : dict = Depends(oauth2.get_user_with_token), db : Session = Depends(db.get_db)):
-    all_posts = db.query(models.Posts).all()
+    all_posts = db.query(models.Posts).filter(models.Posts.user_id == user.id).all()
     return all_posts
 
 @router.post("/", response_model=schemas.PostsData, status_code = status.HTTP_201_CREATED)

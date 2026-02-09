@@ -64,7 +64,6 @@ class PostsData(CreatePost):
     id: int
     created_at: datetime
     updated_at: datetime | None = None
-    user_id : int
     owner: UserData
     model_config = {
         'from_attributes': True

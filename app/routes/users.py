@@ -10,11 +10,11 @@ router = APIRouter(
     tags= ["Users"]
 )
 
-@router.post('/', response_model=schemas.user, status_code=status.HTTP_201_CREATED)
+@router.post('/', response_model=schemas.UserData, status_code=status.HTTP_201_CREATED)
 def createUsers(user : schemas.create_user, db : Session = Depends(get_db)):
     hash_password = utilities.create_hash_password(user.password)
     user.password = hash_password
-    added_user = models.users(**user.model_dump(exclude_unset=True))
+    added_user = models.Users(**user.model_dump(exclude_unset=True))
     db.add(added_user)
     try:
         db.commit()
@@ -24,25 +24,25 @@ def createUsers(user : schemas.create_user, db : Session = Depends(get_db)):
     db.refresh(added_user)
     return added_user
 
-@router.get('/', response_model=List[schemas.user], status_code=status.HTTP_200_OK)
+@router.get('/', response_model=List[schemas.UserData], status_code=status.HTTP_200_OK)
 def all_users(db: Session = Depends(get_db)):
-    output = db.query(models.users).all()
+    output = db.query(models.Users).all()
     return output
 
-@router.get('/{id}', status_code=status.HTTP_200_OK, response_model=schemas.user)
+@router.get('/{id}', status_code=status.HTTP_200_OK, response_model=schemas.UserData)
 def unique_user(id : int, db: Session = Depends(get_db)):
-    check = db.get(models.users, id)
+    check = db.get(models.Users, id)
     if check is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'User with id: {id} not found')
-    user = db.query(models.users).filter(models.users.id == id).first()
+    user = db.query(models.Users).filter(models.Users.id == id).first()
     return user
 
-@router.put('/{id}', status_code=status.HTTP_201_CREATED, response_model=schemas.user)
+@router.put('/{id}', status_code=status.HTTP_201_CREATED, response_model=schemas.UserData)
 def updateUser(id: int, user : schemas.update_user, db: Session = Depends(get_db)):
-    check = db.get(models.users, id)
+    check = db.get(models.Users, id)
     if not check:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"User with ID: {id} not found")
-    original = db.query(models.users).filter(models.users.id == id).first()
+    original = db.query(models.Users).filter(models.Users.id == id).first()
     updated_user = user.model_dump(exclude_unset=True)
     update_data = {k: v for k,v in updated_user.items() if v is not None}
     if not update_data:
@@ -61,10 +61,10 @@ def updateUser(id: int, user : schemas.update_user, db: Session = Depends(get_db
 
 @router.delete('/{id}',status_code=status.HTTP_204_NO_CONTENT)
 def deleteUser(id: int, db : Session = Depends(get_db)):
-    check = db.get(models.users, id)
+    check = db.get(models.Users, id)
     if not check(id, db):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'User Not found')
-    target =  db.query(models.users).filter(models.users.id == id).first()
+    target =  db.query(models.Users).filter(models.Users.id == id).first()
     db.delete(target)
     db.commit()
     return 
