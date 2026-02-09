@@ -19,8 +19,7 @@ def create_post(payload: schemas.CreatePost, db : Session = Depends(db.get_db), 
     payload_dict = payload.model_dump(exclude_unset=True)
     if payload_dict.get("img_url"):
         payload_dict["img_url"] = str(payload_dict["img_url"])
-    # payload_dict["user_id"] = user.get("id")
-    new_post = models.Posts(**payload_dict)
+    new_post = models.Posts(user_id = user.id, **payload_dict)
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -37,6 +36,8 @@ def upate_post(id: int, payload: schemas.UpdatePost, db : Session = Depends(db.g
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="No Data for updating is provided")
     if updated_data.get("img_url"):
         updated_data["img_url"] = str(updated_data["img_url"])
+    if not orignal_post.user_id == user.id:
+        raise HTTPException(status_code= status.HTTP_403_FORBIDDEN, detail="You don't have permission to delete this post")
     for key, value in updated_data.items():
         setattr(orignal_post, key, value)
     
@@ -57,6 +58,8 @@ def delete_post(id : int, db : Session = Depends(db.get_db), user  = Depends(oau
     get_post = db.query(models.Posts).filter(models.Posts.id == id).first()
     if get_post is None:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail="No Post Found")
+    if not get_post.user_id == user.id:
+        raise HTTPException(status_code= status.HTTP_403_FORBIDDEN, detail="You don't have permission to delete this post")
     db.delete(get_post)
     db.commit()
 

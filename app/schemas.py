@@ -64,9 +64,16 @@ class PostsData(CreatePost):
     id: int
     created_at: datetime
     updated_at: datetime | None = None
-    # user_id : int
+    user_id : int
+    model_config = {
+        'from_attributes': True
+    }
 
 class UpdatePost(BaseModel):
     title: Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)] | None = None
     content: Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)] | None = None
     img_url: HttpUrl | None = None
+
+    model_config= {
+        "from_attributes": True
+    }
