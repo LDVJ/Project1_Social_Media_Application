@@ -13,13 +13,13 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.product_details], status_code=status.HTTP_200_OK)
-def get_all_prodct(db: Session = Depends(get_db), get_current_user_id: int = Depends(oauth2.get_user_with_token)):
-    print(get_all_prodct)
+def get_all_prodct(db: Session = Depends(get_db), current_user: dict = Depends(oauth2.get_user_with_token)):
+    print(current_user.email)
     all_posts = db.query(models.Products).all()
     return all_posts
 
 @router.post("/", response_model=schemas.product_details, status_code=status.HTTP_201_CREATED)
-def ceate_product(product: schemas.create_product,db: Session = Depends(get_db)):
+def ceate_product(product: schemas.create_product,db: Session = Depends(get_db), get_user_id : int = Depends(oauth2.get_user_with_token)):
     product_data = product.model_dump(exclude_unset=True)
     if product_data.get("url"):
         product_data["url"] = str(product_data["url"])
@@ -31,14 +31,14 @@ def ceate_product(product: schemas.create_product,db: Session = Depends(get_db))
     return new_product
 
 @router.get("/{id}", response_model= schemas.product_details, status_code=status.HTTP_200_OK)
-def unique_product(id : int, db: Session = Depends(get_db)):
+def unique_product(id : int, db: Session = Depends(get_db), get_user_id: int = Depends(oauth2.get_user_with_token)):
     check_product = db.query(models.Products).filter(models.Products.id  == id).first()
     if check_product is None: 
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail="No product found")
     return check_product
 
 @router.put("/{id}", response_model=schemas.product_details, status_code=status.HTTP_201_CREATED)
-def prouct_update(id: int, product: schemas.update_product, db: Session = Depends(get_db)):
+def prouct_update(id: int, product: schemas.update_product, db: Session = Depends(get_db), get_user_id: int = Depends(oauth2.get_user_with_token)):
     check_product = db.query(models.Products).filter(models.Products.id == id).first()
     if check_product is None: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No prouct found for updating")
@@ -59,7 +59,7 @@ def prouct_update(id: int, product: schemas.update_product, db: Session = Depend
     return check_product
 
 @router.delete('/{id}')
-def delete_product(id: int, db: Session = Depends(get_db)):
+def delete_product(id: int, db: Session = Depends(get_db), get_user_id: int = Depends(oauth2.get_user_with_token)):
     check_product = db.query(models.Products).filter(models.Products.id == id).first()
     if check_product is None:
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail="No Product found")

@@ -1,6 +1,7 @@
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
-from . import schemas
+from . import schemas, db, models
+from sqlalchemy.orm  import Session
 from fastapi.security import oauth2
 from fastapi import Depends, HTTPException, status
 
@@ -21,20 +22,26 @@ def create_jwt_token(data: dict) -> str:
 def verify_jwt_token(token: str, credential_exception):
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=[ALGORITHM])
-        id : str = payload.get("user_id") # it is the key of the data we send during the encoding process     
-        if id is None: 
+        user_id : str = payload.get("user_id") # it is the key of the data we send during the encoding process     
+        if user_id is None: 
             raise credential_exception
-        token_data = schemas.token_data(id = id)
+        token_data = schemas.token_data(id = user_id)
 
     except JWTError:
-        credential_exception
+        raise credential_exception
 
-    
     return token_data
 
 
-def get_user_with_token(token: str  = Depends(oauth2_schema)):
-    credential_exception= HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised access", headers={"WWW-Authenticate":"Bearer"})
+def get_user_with_token(beared_token: str  = Depends(oauth2_schema), db: Session = Depends(db.get_db)):
+    print("user token ", beared_token  )
+    credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised access", headers={"WWW-Authenticate":"Bearer"})
 
-    return verify_jwt_token(token=token,credential_exception=credential_exception)  
+    token = verify_jwt_token(token=beared_token,credential_exception=credential_exception)  
+
+    user_data = db.query(models.users).filter(models.users.id == token.id).first()
+    print(user_data)
+    return user_data
+
     
+

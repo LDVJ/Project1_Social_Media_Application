@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, condecimal, HttpUrl, Field
+from pydantic import BaseModel, EmailStr, condecimal, HttpUrl, Field, StringConstraints
 from typing import List, Literal,Annotated
 from decimal import Decimal
 from datetime import datetime
@@ -53,3 +53,20 @@ class update_product(BaseModel):
     tags : List[str] | None = None 
     currency : Literal["USD","INR","EUR","GBP"] = "USD"
     url : HttpUrl | None = None
+
+
+class CreatePost(BaseModel):
+    title: Annotated[str, StringConstraints(strip_whitespace=True)]
+    content: str | None = None
+    img_url: HttpUrl | None = None
+
+class PostsData(CreatePost):
+    id: int
+    created_at: datetime
+    updated_at: datetime | None = None
+    # user_id : int
+
+class UpdatePost(BaseModel):
+    title: Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)] | None = None
+    content: Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)] | None = None
+    img_url: HttpUrl | None = None

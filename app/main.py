@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from .db import engine
 from . import models
-from .routes import users, authentication, product
+from .routes import users, authentication, product, post
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -14,3 +14,4 @@ def root():
 app.include_router(authentication.router)
 app.include_router(users.router)
 app.include_router(product.router)
+app.include_router(post.router)
