@@ -3,7 +3,6 @@ from .. import schemas, db, oauth2, models
 from typing import List
 from sqlalchemy.orm import Session
 
-
 router = APIRouter(
     prefix="/posts",
     tags=["Posts"]
