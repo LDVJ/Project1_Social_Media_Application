@@ -12,6 +12,8 @@ class Users(Base):
     password = Column(String,nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
+    user_posts = relationship("Posts", back_populates="owner", cascade= "all, delete")
+
 class Posts(Base):
     __tablename__ = "posts"
 
@@ -23,7 +25,7 @@ class Posts(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     user_id = Column(Integer,ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     
-    owner = relationship("Users")
+    owner = relationship("Users", back_populates="user_posts")
     # owner = relationship("Users",back_populates="posts")
 
 class Products(Base):

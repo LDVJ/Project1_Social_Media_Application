@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from ..db import get_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
 from .. import models, schemas, utilities
 
@@ -14,6 +14,7 @@ router = APIRouter(
 def createUsers(user : schemas.create_user, db : Session = Depends(get_db)):
     hash_password = utilities.create_hash_password(user.password)
     user.password = hash_password
+    user.email = user.email.lower()
     added_user = models.Users(**user.model_dump(exclude_unset=True))
     db.add(added_user)
     try:
@@ -24,9 +25,9 @@ def createUsers(user : schemas.create_user, db : Session = Depends(get_db)):
     db.refresh(added_user)
     return added_user
 
-@router.get('/', response_model=List[schemas.UserData], status_code=status.HTTP_200_OK)
+@router.get('/', response_model=List[schemas.UserPostRelation], status_code=status.HTTP_200_OK)
 def all_users(db: Session = Depends(get_db)):
-    output = db.query(models.Users).all()
+    output = db.query(models.Users).options(joinedload(models.Users.user_posts)).all()
     return output
 
 @router.get('/{id}', status_code=status.HTTP_200_OK, response_model=schemas.UserData)

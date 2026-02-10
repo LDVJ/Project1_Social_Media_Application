@@ -15,11 +15,29 @@ class update_user(BaseModel):
     name : str | None = None
     password : str | None = None
 
+class PostUserRelation(BaseModel):
+    id: int
+    title : str | None = None
+    img_url : HttpUrl | None = None
+    created_at : datetime
+    updated_at : datetime | None = None
+
+class UserPostRelation(BaseModel):
+    id : int
+    name : str
+    email: EmailStr
+    created_at : datetime
+    user_posts : List[PostUserRelation] 
+    model_config = {
+        'from_attributes': True
+    }
+
 class UserData(BaseModel):
     id : int
     name : str
     email: EmailStr
-    created_at : datetime 
+    created_at : datetime
+    # user_posts : List[PostUserRelation] 
     model_config = {
         'from_attributes': True
     }
@@ -77,3 +95,4 @@ class UpdatePost(BaseModel):
     model_config= {
         "from_attributes": True
     }
+
