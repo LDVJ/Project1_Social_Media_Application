@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from .. import schemas, db, oauth2, models
 from typing import List
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 router = APIRouter(
@@ -8,11 +9,11 @@ router = APIRouter(
     tags=["Posts"]
 )
 
-@router.get("/", response_model= List[schemas.PostsData], status_code = status.HTTP_200_OK)
+# @router.get("/", response_model= List[schemas.PostsData], status_code = status.HTTP_200_OK)
+@router.get("/", response_model= List[schemas.PostLikeCount],status_code = status.HTTP_200_OK)
 def get_all_post(user : dict = Depends(oauth2.get_user_with_token), db : Session = Depends(db.get_db), limit: int = 10, skip : int = 0, search : str | None = ""):
-    # print(limit)
-    all_posts = db.query(models.Posts).filter(models.Posts.title.contains(search)).limit(limit=limit).offset(offset=skip).all()
-    return all_posts
+    test_query = db.query(models.Posts, func.count(models.Votes.post_id).label("like_count")).outerjoin(models.Votes, models.Posts.id == models.Votes.post_id).group_by(models.Posts.id).filter(models.Posts.title.contains(search)).limit(limit=limit).offset(offset=skip).all()
+    return test_query
 
 @router.post("/", response_model=schemas.PostsData, status_code = status.HTTP_201_CREATED)
 def create_post(payload: schemas.CreatePost, db : Session = Depends(db.get_db), user : dict = Depends(oauth2.get_user_with_token)):

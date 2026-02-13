@@ -83,9 +83,16 @@ class PostsData(CreatePost):
     created_at: datetime
     updated_at: datetime | None = None
     owner: UserData
-    # like_couont : int
+    # like_count : int
     model_config = {
         'from_attributes': True
+    }
+
+class PostLikeCount(BaseModel):
+    Posts: PostsData
+    like_count: int
+    model_config = {
+        "from_attributes": True
     }
 
 class UpdatePost(BaseModel):
