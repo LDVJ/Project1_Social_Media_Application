@@ -47,9 +47,10 @@ def upate_post(id: int, payload: schemas.UpdatePost, db : Session = Depends(db.g
 
     return orignal_post
 
-@router.get("/{id}", response_model=schemas.PostsData, status_code=status.HTTP_200_OK)
+@router.get("/{id}", response_model=schemas.PostLikeCount, status_code=status.HTTP_200_OK)
 def get_a_post(id: int, db: Session = Depends(db.get_db), user  : dict = Depends(oauth2.get_user_with_token)):
-    post = db.query(models.Posts).filter(models.Posts.id == id).first()
+    # post = db.query(models.Posts).filter(models.Posts.id == id).first()
+    post = db.query(models.Posts, func.count(models.Votes.post_id).label("like_count")).outerjoin(models.Votes, models.Posts.id == models.Votes.post_id).group_by(models.Posts.id).filter(models.Posts.id == id).first()
     if post is None:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail="Post not found")
     return post

@@ -31,6 +31,7 @@ class UserPostRelation(BaseModel):
     model_config = {
         'from_attributes': True
     }
+    
 
 class UserData(BaseModel):
     id : int
