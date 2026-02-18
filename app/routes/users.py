@@ -27,7 +27,7 @@ def createUsers(user : schemas.create_user, db : Session = Depends(get_db)):
 
 @router.get('/', response_model=List[schemas.UserPostRelation], status_code=status.HTTP_200_OK)
 def all_users(db: Session = Depends(get_db)):
-    output = db.query(models.Users).options(joinedload(models.Users.user_posts)).all()
+    output = db.query(models.Users).all()
     return output
 
 @router.get('/{id}', status_code=status.HTTP_200_OK, response_model=schemas.UserData)

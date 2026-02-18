@@ -1,12 +1,19 @@
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.engine import URL
 from sqlalchemy.ext.declarative import  declarative_base
 from .config import settings
 
 
-DATABSAE_URL = f'postgresql+psycopg2://{settings.DB_USERNAME}:{quote_plus(settings.DB_PASSWORD)}@{settings.DB_HOSTNAME}:{settings.DB_PORT}/{settings.DB_NAME}'
-
+DATABSAE_URL = URL.create(
+    drivername="postgresql+psycopg",
+    username=settings.DB_USERNAME,
+    password=settings.DB_PASSWORD,
+    host=settings.DB_HOSTNAME,
+    port=settings.DB_PORT,
+    database=settings.DB_NAME
+)
 engine = create_engine(DATABSAE_URL)
 
 sessionLocal = sessionmaker(
@@ -14,7 +21,8 @@ sessionLocal = sessionmaker(
                     autoflush=False,
                     bind=engine)
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 def get_db():
     db = sessionLocal()
