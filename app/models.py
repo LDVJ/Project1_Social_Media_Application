@@ -1,7 +1,7 @@
 from .db import Base
 from sqlalchemy import Column, Integer, String, DateTime, NUMERIC, Text,Enum, JSON, ForeignKey, UniqueConstraint
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 class Users(Base):
     __tablename__  = 'users'
@@ -10,6 +10,7 @@ class Users(Base):
     email = Column(String,nullable=False,unique=True)
     name = Column(String,nullable=False)
     password = Column(String,nullable=False)
+    mob_number : Mapped[int] = mapped_column(Integer(), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user_posts = relationship("Posts", back_populates="owner", cascade= "all, delete")
@@ -21,6 +22,7 @@ class Posts(Base):
     title = Column(String,nullable=False)
     content = Column(String, nullable=True)
     img_url = Column(Text,nullable=True)
+    published : Mapped[bool] = mapped_column(nullable=False, default= True)
     created_at = Column(DateTime(timezone=True),nullable=False,server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     user_id = Column(Integer,ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

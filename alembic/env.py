@@ -20,7 +20,7 @@ from app.config import settings
 config = context.config
 config.set_main_option("sqlalchemy.url", str(DATABSAE_URL))
 
-print("Alembic URL", str(DATABSAE_URL))
+# print("Alembic URL", str(DATABSAE_URL))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
